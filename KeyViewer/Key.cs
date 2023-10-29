@@ -159,6 +159,7 @@ namespace KeyViewer
                     Pressed |= KeyInput.GetKey(config.SpareCode);
             }
             if (Pressed == prevPressed) return;
+
             prevPressed = Pressed;
             if (DOTween.IsTweening(TweenID))
                 DOTween.Kill(TweenID);
@@ -1130,7 +1131,11 @@ namespace KeyViewer
         public void ChangeHitMarginColor(HitMargin hit)
         {
             if (config.ChangeBgColorJudge)
-                forceBgColor = GetHitMarginColor(hit);
+            {
+                if (Pressed)
+                    Background.color = GetHitMarginColor(hit);
+                else forceBgColor = GetHitMarginColor(hit);
+            }
         }
         public Color GetHitMarginColor(HitMargin hit)
         {
