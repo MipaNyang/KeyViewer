@@ -47,8 +47,8 @@ namespace KeyViewer
                 return newConfig;
             }
 
-            internal Sprite GetRainImage() => Main.GetSprite(RainImages[GetRainImageIndex()]);
-            internal Sprite GetRainImageRandomly() => Main.GetSprite(RainImages[(int)(RainImages.Length * Random.value)]);
+            internal Sprite GetRainImage() => RainImages.Length < 1 ? null : Main.GetSprite(RainImages[GetRainImageIndex()]);
+            internal Sprite GetRainImageRandomly() => RainImages.Length < 1 ? null : Main.GetSprite(RainImages[(int)(RainImages.Length * Random.value)]);
             private int GetRainImageIndex()
             {
                 if (CurrentImageIndex < RainImages.Length)
