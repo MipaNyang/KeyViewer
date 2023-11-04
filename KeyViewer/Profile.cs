@@ -23,6 +23,8 @@ namespace KeyViewer
         public bool EditEachKeys = false;
         public bool ResetWhenStart = false;
         public bool ApplyWithOffset = false;
+        public bool SequentialRainImage = true;
+        public bool ShuffleRainImage = false;
         internal bool LimitNotRegisteredKeysOnCLS;
         internal bool LimitNotRegisteredKeysOnMain;
 

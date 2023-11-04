@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using DG.Tweening;
 using KeyViewer.API;
+using Rnd = UnityEngine.Random;
 
 namespace KeyViewer
 {
@@ -35,7 +36,7 @@ namespace KeyViewer
         private KeyManager keyManager;
         internal Config config;
         private Profile Profile => keyManager.Profile;
-        private EnsurePool<KeyRain> rains;
+        internal EnsurePool<KeyRain> rains;
         private KeyRain toRelease;
         internal GameObject rainContainer;
         internal Transform rainContainerTransform;
@@ -67,7 +68,8 @@ namespace KeyViewer
                     kr.Init(this);
                     return kr;
                 }, kr => !kr.IsAlive, kr => kr.gameObject.SetActive(true), Destroy);
-                rains.Fill(config.RainConfig.RainPoolSize);
+                config.RainConfig.CurrentImageIndex = 0;
+                rains.Fill(Math.Max(config.RainConfig.RainImageCounts.Length > 0 ? config.RainConfig.RainImageCounts.Sum() : 0, config.RainConfig.RainPoolSize));
             }
 
             GameObject bgObj = new GameObject("Background");
@@ -373,8 +375,43 @@ namespace KeyViewer
                     SetAnchor(rConfig.Direction);
                     rainMaskRt.sizeDelta = GetSizeDelta(rConfig.Direction);
                     rainMaskRt.anchoredPosition = GetMaskPosition(rConfig.Direction);
-                    var sprite = Main.GetSprite(rConfig.RainImage);
-                    if (sprite != null) rains.ForEach(kr => kr.image.sprite = sprite);
+                    if (rConfig.RainImages.Length > 0)
+                    {
+                        Sprite[] sprites = new Sprite[Math.Max(rConfig.RainImageCounts.Sum(), rConfig.RainPoolSize)];
+                        int cnt = 0;
+                        for (int i = 0; i < rConfig.RainImageCounts.Length; i++)
+                            for (int j = 0; j < rConfig.RainImageCounts[i]; j++)
+                                sprites[cnt++] = Main.GetSprite(rConfig.RainImages[i]);
+                        if (rConfig.SequentialImages)
+                        {
+                            rConfig.CurrentImageIndex = 0;
+                            for (int i = 0; i < cnt; i++)
+                                sprites[i] = rConfig.GetRainImage();
+                        }
+                        if (rConfig.ShuffleImages)
+                        {
+                            int[] indexes = new int[cnt];
+                            for (int i = 0; i < cnt; indexes[i++] = (int)(cnt * Rnd.value)) ;
+                            for (int i = 0; i < cnt; i++)
+                            {
+                                int target = indexes[i];
+                                Sprite temp = sprites[i];
+                                sprites[i] = sprites[target];
+                                sprites[target] = temp;
+                            }
+                        }
+                        if (cnt < sprites.Length)
+                        {
+                            rConfig.CurrentImageIndex = 0;
+                            for (int i = cnt; i < sprites.Length; i++)
+                                sprites[i] = rConfig.GetRainImage();
+                        }
+                        for (int i = 0; i < rains.Count; i++)
+                            rains.For((i, rain) => rain.image.sprite = sprites[i]);
+                    }
+                    else 
+                        for (int i = 0; i < rains.Count; i++)
+                            rains.For((i, rain) => rain.image.sprite = null);
                     rains.ForEach(kr => kr.image.color = rConfig.RainColor);
                     rains.ForEach(kr => kr.ResetSizePos());
                 }
@@ -724,6 +761,8 @@ namespace KeyViewer
                 if (config.ChangeBgColorJudge = GUILayout.Toggle(config.ChangeBgColorJudge, lang.GetString("CHANGE_BG_COLOR_FOLLOWING_HITMARGIN")))
                 {
                     MoreGUILayout.BeginIndent();
+                    if (config.RainEnabled)
+                        config.ChangeRainColorJudge = GUILayout.Toggle(config.ChangeRainColorJudge, "Change Rain Color");
                     string te, ve;
                     string ep, p;
                     string lp, vl;
@@ -1132,9 +1171,19 @@ namespace KeyViewer
         {
             if (config.ChangeBgColorJudge)
             {
+                var color = GetHitMarginColor(hit);
                 if (Pressed)
-                    Background.color = GetHitMarginColor(hit);
-                else forceBgColor = GetHitMarginColor(hit);
+                {
+                    Background.color = color;
+                    if (config.RainEnabled && config.ChangeRainColorJudge) 
+                        toRelease.image.color = color;
+                }
+                else
+                {
+                    forceBgColor = color;
+                    if (config.RainEnabled && config.ChangeRainColorJudge) 
+                        KeyRain.forceRainColor = color;
+                }
             }
         }
         public Color GetHitMarginColor(HitMargin hit)
@@ -1570,10 +1619,19 @@ namespace KeyViewer
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
-            bool changeBgColorJudge;
+            bool changeBgColorJudge, changeRainColorJudge;
             if (changeBgColorJudge = GUILayout.Toggle(config.ChangeBgColorJudge, Main.Lang.GetString("CHANGE_BG_COLOR_FOLLOWING_HITMARGIN")))
             {
                 MoreGUILayout.BeginIndent();
+                if (config.RainEnabled)
+                {
+                    changeRainColorJudge = GUILayout.Toggle(config.ChangeRainColorJudge, "Change Rain Color");
+                    if (changeRainColorJudge != config.ChangeRainColorJudge)
+                    {
+                        config.ChangeRainColorJudge = changeRainColorJudge;
+                        onChange(config);
+                    }
+                }
                 string te, ve;
                 string ep, p;
                 string lp, vl;

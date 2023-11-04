@@ -45,16 +45,28 @@ namespace KeyViewer.Patches
                     keys.Add(Main.KeyManager[code]);
         }
         static bool stackFlushed = false;
+        static bool rainRestored = false;
+        static States prevState = States.None;
         [HarmonyPrefix]
         [HarmonyPatch(typeof(scrController), "Update")]
         public static void StackFlushPatch(scrController __instance)
         {
             if (!initialized) return;
-            if (!stackFlushed && __instance.state == States.PlayerControl)
+            var state = __instance.state;
+            if (!stackFlushed && state == States.PlayerControl)
             {
                 keys.Clear();
                 stackFlushed = true;
+                rainRestored = false;
             }
+            if (!rainRestored && state != prevState)
+            {
+                foreach (var activeKey in Main.KeyManager.Keys)
+                    if (activeKey.config.RainEnabled)
+                        activeKey.rains.ForEach(kr => kr.image.color = activeKey.config.RainConfig.RainColor);
+                rainRestored = true;
+            }
+            prevState = state;
         }
         [HarmonyPrefix]
         [HarmonyPatch(typeof(scrController), "Awake_Rewind")]

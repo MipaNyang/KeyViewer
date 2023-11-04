@@ -405,6 +405,18 @@ namespace KeyViewer
                 KeyManager.Profile.ShowKeyPressTotal = newShowTotal;
                 KeyManager.UpdateLayout();
             }
+            bool newSeqRainImg = GUILayout.Toggle(KeyManager.Profile.SequentialRainImage, "Sequential Rain Images");
+            if (newSeqRainImg != KeyManager.Profile.SequentialRainImage)
+            {
+                KeyManager.Profile.SequentialRainImage = newSeqRainImg;
+                KeyManager.UpdateLayout();
+            }
+            bool newShuffleRainImg = GUILayout.Toggle(KeyManager.Profile.ShuffleRainImage, "Shuffle Rain Images");
+            if (newShuffleRainImg != KeyManager.Profile.ShuffleRainImage)
+            {
+                KeyManager.Profile.ShuffleRainImage = newShuffleRainImg;
+                KeyManager.UpdateLayout();
+            }
             float newSize = MoreGUILayout.NamedSlider(Lang.GetString("KEY_VIEWER_SIZE"), KeyManager.Profile.KeyViewerSize, 10f, 200f, 300f, roundNearest: 1f);
             if (newSize != KeyManager.Profile.KeyViewerSize)
             {

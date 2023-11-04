@@ -8,6 +8,7 @@ namespace KeyViewer
 {
     public partial class KeyRain : MonoBehaviour
     {
+        internal static Color? forceRainColor = null;
         public bool IsAlive { get; private set; }
         private bool stretching = false;
         private RainConfig config => key.config.RainConfig;
@@ -23,14 +24,27 @@ namespace KeyViewer
         public void Init(Key key)
         {
             this.key = key;
-            if (File.Exists(config.RainImage))
-                image.sprite = Main.GetSprite(config.RainImage);
+            image.sprite = config.GetRainImage();
             image.color = config.RainColor;
             ResetSizePos();
         }
         public void Press()
         {
             stretching = true;
+            var profile = Main.KeyManager.Profile;
+            if (!profile.EditEachKeys)
+            {
+                var global = profile.GlobalConfig.RainConfig;
+                if (profile.SequentialRainImage)
+                    image.sprite = global.GetRainImage();
+                if (profile.ShuffleRainImage)
+                    image.sprite = global.GetRainImageRandomly();
+            }
+            if (forceRainColor.HasValue)
+            {
+                image.color = forceRainColor.Value;
+                forceRainColor = null;
+            }
         }
         public void ResetSizePos()
         {
@@ -106,14 +120,36 @@ namespace KeyViewer
                 GUILayout.EndHorizontal();
                 MoreGUILayout.EndIndent();
             }
-            var newImage = MoreGUILayout.NamedTextField("Rain Image", config.RainImage);
-            if (changed |= newImage != config.RainImage) config.RainImage = newImage;
             GUILayout.BeginHorizontal();
             GUILayout.Label("Rain Direction");
             if (DrawDirection($"{code} Rain Direction", ref config.Direction))
                 Main.KeyManager.UpdateKeys();
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            GUILayout.Label("Rain Images");
+            MoreGUILayout.DrawStringArray(ref config.RainImages,
+                i => Array.Resize(ref config.RainImageCounts, i),
+                i =>
+                {
+                    GUILayout.Label("Count: ");
+                    if (int.TryParse(GUILayout.TextField(config.RainImageCounts[i].ToString()), out int count))
+                    {
+                        if (count < 1) count = 1;
+                        config.RainImageCounts[i] = count;
+                    }
+                }, (i, s) => Main.KeyManager.UpdateKeys());
+            bool sequentialImage = GUILayout.Toggle(config.SequentialImages, "Sequential Rain Images");
+            if (sequentialImage != config.SequentialImages)
+            {
+                config.SequentialImages = sequentialImage;
+                Main.KeyManager.UpdateKeys();
+            }
+            bool shuffleImages = GUILayout.Toggle(config.ShuffleImages, "Shuffle Rain Images");
+            if (shuffleImages != config.ShuffleImages)
+            {
+                config.ShuffleImages = shuffleImages;
+                Main.KeyManager.UpdateKeys();
+            }
             return changed;
         }
         private bool IsVisible(Direction dir)

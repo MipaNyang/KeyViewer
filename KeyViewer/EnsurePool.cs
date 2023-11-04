@@ -10,6 +10,7 @@ namespace KeyViewer
         private Predicate<T> criteria;
         private Action<T> onGet;
         private Action<T> onRemove;
+        private T last;
         public EnsurePool(Func<T> ensurer, Predicate<T> ensureCriteria, Action<T> onGet = null, Action<T> onRemove = null, int capacity = -1) 
         {
             if (ensurer == null)
@@ -30,12 +31,16 @@ namespace KeyViewer
                 if (criteria(t))
                 {
                     onGet?.Invoke(t);
-                    return t;
+                    return last = t;
                 }
-            T ensured = ensurer();
-            pool.Add(ensured);
-            onGet?.Invoke(ensured);
-            return ensured;
+            last = ensurer();
+            pool.Add(last);
+            onGet?.Invoke(last);
+            return last;
+        }
+        public T GetLast()
+        {
+            return last;
         }
         public void Clear()
         {
@@ -59,6 +64,13 @@ namespace KeyViewer
                 pool.Add(ensurer());
         }
         public int Count => pool.Count;
+        public void For(Action<int, T> @for)
+        {
+            if (@for == null) return;
+            int index = 0;
+            foreach (T t in pool)
+                @for(index++, t);
+        }
         public void ForEach(Action<T> forEach)
         {
             if (forEach == null) return;

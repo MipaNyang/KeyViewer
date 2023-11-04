@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using DG.Tweening;
 using System.Xml.Serialization;
@@ -34,6 +33,7 @@ namespace KeyViewer
             public bool Editing = false;
             public string KeyTitle = null;
             public bool ChangeBgColorJudge = false;
+            public bool ChangeRainColorJudge = false;
             public float Width = 100;
             public float Height = 100;
             [XmlIgnore]
@@ -311,6 +311,7 @@ namespace KeyViewer
                 PressedCountTextColor = new VertexGradient(Color.black);
                 ReleasedCountTextColor = new VertexGradient(Color.white);
                 ChangeBgColorJudge = false;
+                ChangeRainColorJudge = true;
                 TooEarlyColor = new Color(1.000f, 0.000f, 0.000f, 1.000f);
                 VeryEarlyColor = new Color(1.000f, 0.436f, 0.306f, 1.000f);
                 EarlyPerfectColor = new Color(0.627f, 1.000f, 0.306f, 1.000f);
@@ -349,6 +350,7 @@ namespace KeyViewer
                 PressedCountTextColor = config.PressedCountTextColor;
                 ReleasedCountTextColor = config.ReleasedCountTextColor;
                 ChangeBgColorJudge = config.ChangeBgColorJudge;
+                ChangeRainColorJudge = config.ChangeRainColorJudge;
                 TooEarlyColor = config.TooEarlyColor;
                 VeryEarlyColor = config.VeryEarlyColor;
                 EarlyPerfectColor = config.EarlyPerfectColor;
@@ -397,6 +399,7 @@ namespace KeyViewer
                 PressedCountTextColor = config.PressedCountTextColor;
                 ReleasedCountTextColor = config.ReleasedCountTextColor;
                 ChangeBgColorJudge = config.ChangeBgColorJudge;
+                ChangeRainColorJudge = config.ChangeRainColorJudge;
                 TooEarlyColor = config.TooEarlyColor;
                 VeryEarlyColor = config.VeryEarlyColor;
                 EarlyPerfectColor = config.EarlyPerfectColor;
@@ -440,6 +443,7 @@ namespace KeyViewer
                 PressedCountTextColor = config.PressedCountTextColor;
                 ReleasedCountTextColor = config.ReleasedCountTextColor;
                 ChangeBgColorJudge = config.ChangeBgColorJudge;
+                ChangeRainColorJudge = config.ChangeRainColorJudge;
                 TooEarlyColor = config.TooEarlyColor;
                 VeryEarlyColor = config.VeryEarlyColor;
                 EarlyPerfectColor = config.EarlyPerfectColor;

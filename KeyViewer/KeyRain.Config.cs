@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using Newgrounds;
+using System.Xml.Serialization;
 using UnityEngine;
 
 namespace KeyViewer
@@ -13,14 +14,19 @@ namespace KeyViewer
             public float RainWidth = -1f;
             public float RainHeight = -1f;
             public float RainLength = 400f;
-            public int RainPoolSize = 25;
             public int Softness = 100;
             public Color RainColor = Color.white;
-            public string RainImage = null;
+            public string[] RainImages = new string[0];
+            public int RainPoolSize = 25;
+            public int[] RainImageCounts = new int[0];
+            public bool SequentialImages = true;
+            public bool ShuffleImages = false;
             public Direction Direction = Direction.U;
 
             [XmlIgnore]
             public bool ColorExpanded = false;
+            [XmlIgnore]
+            public int CurrentImageIndex = 0;
 
             public RainConfig Copy()
             {
@@ -32,10 +38,24 @@ namespace KeyViewer
                 newConfig.RainHeight = RainHeight;
                 newConfig.RainLength = RainLength;
                 newConfig.RainColor = RainColor;
-                newConfig.RainImage = RainImage;
+                newConfig.RainImages = (string[])RainImages.Clone();
+                newConfig.RainImageCounts = (int[])RainImageCounts.Clone();
+                newConfig.ShuffleImages = ShuffleImages;
+                newConfig.SequentialImages = SequentialImages;
                 newConfig.Softness = Softness;
                 newConfig.Direction = Direction;
                 return newConfig;
+            }
+
+            internal Sprite GetRainImage() => Main.GetSprite(RainImages[GetRainImageIndex()]);
+            internal Sprite GetRainImageRandomly() => Main.GetSprite(RainImages[(int)(RainImages.Length * Random.value)]);
+            private int GetRainImageIndex()
+            {
+                if (CurrentImageIndex < RainImages.Length)
+                    return CurrentImageIndex++;
+                 var ret = CurrentImageIndex = 0;
+                CurrentImageIndex++;
+                return ret;
             }
         }
     }
