@@ -348,6 +348,7 @@
     <Compile Include="LanguageEnum.cs" />
     <Compile Include="MoreGUILayout.cs" />
     <Compile Include="Patches\JudgementColorPatch.cs" />
+    <Compile Include="Patches\OnResetScenePatch.cs" />
     <Compile Include="Patches\RemoveFuckingUMMDummyLogPatch.cs" />
     <Compile Include="Profile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

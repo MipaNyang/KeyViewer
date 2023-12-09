@@ -81,6 +81,12 @@ namespace KeyViewer
                 gameObject.SetActive(false);
             }
         }
+        public void ForceRelease()
+        {
+            stretching = false;
+            ResetSizePos();
+            gameObject.SetActive(false);
+        }
         internal static bool DrawConfigGUI(KeyCode code, RainConfig config)
         {
             bool changed = false;

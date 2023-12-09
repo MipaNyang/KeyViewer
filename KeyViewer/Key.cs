@@ -7,6 +7,7 @@ using System.Linq;
 using DG.Tweening;
 using KeyViewer.API;
 using Rnd = UnityEngine.Random;
+using static DG.DemiLib.External.DeHierarchyComponent;
 
 namespace KeyViewer
 {
@@ -152,17 +153,22 @@ namespace KeyViewer
                     CountText.text = Total.ToString();
                     return;
             }
-            if (InputAPI.Active)
-                Pressed = InputAPI.APIFlags.TryGetValue(Code, out bool flag) && flag;
-            else
+            if (forcePressedState == null)
             {
-                Pressed = KeyInput.GetKey(Code);
-                if (config.SpareCode != KeyCode.None)
-                    Pressed |= KeyInput.GetKey(config.SpareCode);
-            }
-            if (Pressed == prevPressed) return;
+                if (InputAPI.Active)
+                    Pressed = InputAPI.APIFlags.TryGetValue(Code, out bool flag) && flag;
+                else
+                {
+                    Pressed = KeyInput.GetKey(Code);
+                    if (config.SpareCode != KeyCode.None)
+                        Pressed |= KeyInput.GetKey(config.SpareCode);
+                }
+                if (Pressed == prevPressed) return;
 
-            prevPressed = Pressed;
+                prevPressed = Pressed;
+            }
+            else Pressed = prevPressed = forcePressedState.Value;
+
             if (DOTween.IsTweening(TweenID))
                 DOTween.Kill(TweenID);
             if (Pressed)
@@ -1167,6 +1173,14 @@ namespace KeyViewer
             MoreGUILayout.EndIndent();
         }
         static Color? forceBgColor = null;
+        static bool? forcePressedState = null;
+        public void ForceReleaseKey()
+        {
+            forcePressedState = false;
+            Update();
+            forcePressedState = null;
+            rains.ForEach(kr => kr.ForceRelease());
+        }
         public void ChangeHitMarginColor(HitMargin hit)
         {
             if (config.ChangeBgColorJudge)

@@ -14,6 +14,7 @@ using System.Xml.Serialization;
 using KeyViewer.Patches;
 using System.Text;
 using System.Security.AccessControl;
+using UnityEngine.SceneManagement;
 
 namespace KeyViewer
 {
@@ -45,6 +46,7 @@ namespace KeyViewer
             modEntry.OnUpdate = OnUpdate;
             modEntry.OnShowGUI = OnShowGUI;
             modEntry.OnHideGUI = OnHideGUI;
+            SceneManager.activeSceneChanged += (from, to) => AsyncInputManager.ClearKeys();
             AssetBundle assets = AssetBundle.LoadFromFile("Mods/KeyViewer/keyviewer.assets");
             KeyOutline = assets.LoadAsset<Sprite>("Assets/KeyOutline.png");
             KeyBackground = assets.LoadAsset<Sprite>("Assets/KeyBackground.png");
