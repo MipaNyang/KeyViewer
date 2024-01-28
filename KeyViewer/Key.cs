@@ -8,6 +8,7 @@ using DG.Tweening;
 using KeyViewer.API;
 using Rnd = UnityEngine.Random;
 using static DG.DemiLib.External.DeHierarchyComponent;
+using static KeyViewer.Key;
 
 namespace KeyViewer
 {
@@ -60,17 +61,18 @@ namespace KeyViewer
                 image.color = new Color(1, 1, 1, 0);
                 rainMask = rainContainer.AddComponent<RectMask2D>();
                 rainMaskRt = rainMask.rectTransform;
-                rainMaskRt.anchorMin = rainMaskRt.anchorMax = Vector2.zero;
+                SetAnchor(config.RainConfig.Direction);
                 rains = new EnsurePool<KeyRain>(() =>
                 {
                     GameObject go = new GameObject($"Rain {Code}");
-                    go.transform.parent = rainMask.transform;
+                    go.transform.SetParent(rainMask.transform);
                     var kr = go.AddComponent<KeyRain>();
                     kr.Init(this);
+                    go.gameObject.SetActive(false);
                     return kr;
-                }, kr => !kr.IsAlive, kr => kr.gameObject.SetActive(true), Destroy);
+                }, kr => !kr.IsAlive, kr => kr.gameObject.SetActive(true), r => Destroy(r.gameObject));
                 config.RainConfig.CurrentImageIndex = 0;
-                rains.Fill(Math.Max(config.RainConfig.RainImageCounts.Length > 0 ? config.RainConfig.RainImageCounts.Sum() : 0, config.RainConfig.RainPoolSize));
+                rains.Fill(config.RainConfig.RainPoolSize);
             }
 
             GameObject bgObj = new GameObject("Background");
@@ -303,8 +305,7 @@ namespace KeyViewer
             }
             float keyWidth = config.Width, keyHeight = config.Height;
             DOTween.Kill(TweenID);
-            if (Profile.ShowKeyPressTotal)
-                keyHeight += 50;
+            if (Profile.ShowKeyPressTotal) keyHeight += 50;
             position = new Vector2(keyWidth / 2f + x, keyHeight / 2f);
             Vector2 anchoredPos = position + offsetVec;
             Background.rectTransform.anchorMin = Vector2.zero;
@@ -366,10 +367,11 @@ namespace KeyViewer
             x += keyWidth + 10;
             if (!isSpecial)
             {
-                rainContainer.SetActive(config.RainEnabled);
                 if (config.RainEnabled)
                 {
                     var rConfig = config.RainConfig;
+                    rains.Clear();
+                    rains.Fill(config.RainConfig.RainPoolSize);
                     rainMask.softness = rConfig.Direction switch
                     {
                         Direction.U or
@@ -378,9 +380,9 @@ namespace KeyViewer
                         Direction.R => new Vector2Int(rConfig.Softness, 0),
                         _ => Vector2Int.zero
                     };
-                    SetAnchor(rConfig.Direction);
                     rainMaskRt.sizeDelta = GetSizeDelta(rConfig.Direction);
                     rainMaskRt.anchoredPosition = GetMaskPosition(rConfig.Direction);
+                    SetAnchor(rConfig.Direction);
                     if (rConfig.RainImages.Length > 0)
                     {
                         Sprite[] sprites = new Sprite[Math.Max(rConfig.RainImageCounts.Sum(), rConfig.RainPoolSize)];
@@ -419,8 +421,8 @@ namespace KeyViewer
                         for (int i = 0; i < rains.Count; i++)
                             rains.For((i, rain) => rain.image.sprite = null);
                     rains.ForEach(kr => kr.image.color = rConfig.RainColor);
-                    rains.ForEach(kr => kr.ResetSizePos());
                 }
+                rainContainer.SetActive(config.RainEnabled);
             }
             layoutUpdated = true;
         }
@@ -565,10 +567,10 @@ namespace KeyViewer
                 Color newOutline, newBackground;
                 string newOutlineHex, newBackgroundHex;
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("OUTLINE_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("OUTLINE_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(8f);
-                GUILayout.Label(lang.GetString("BACKGROUND_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("BACKGROUND_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20f);
                 GUILayout.EndHorizontal();
@@ -606,10 +608,10 @@ namespace KeyViewer
                 config.Gradient = GUILayout.Toggle(config.Gradient, "Gradient");
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("TEXT_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("TEXT_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(8f);
-                GUILayout.Label(lang.GetString("COUNT_TEXT_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("COUNT_TEXT_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20f);
                 GUILayout.EndHorizontal();
@@ -737,13 +739,13 @@ namespace KeyViewer
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Ease:");
+                MoreGUILayout.DiscordButtonLabel("Ease:");
                 DrawEase(config.Ease, ease => config.Ease = ease);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("KEY_COUNT"));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("KEY_COUNT"));
                 if (uint.TryParse(GUILayout.TextField(config.Count.ToString()), out uint count))
                 {
                     config.Count = count;
@@ -753,13 +755,13 @@ namespace KeyViewer
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("KeyCode:");
+                MoreGUILayout.DiscordButtonLabel("KeyCode:");
                 DrawKeyCode(config.Code, code => config.Code = code);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Spare KeyCode:");
+                MoreGUILayout.DiscordButtonLabel("Spare KeyCode:");
                 DrawSpareKeyCode(config.SpareCode, code => config.SpareCode = code);
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -853,10 +855,10 @@ namespace KeyViewer
                 Color newPressed, newReleased;
                 string newPressedHex, newReleasedHex;
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("PRESSED_OUTLINE_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("PRESSED_OUTLINE_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(8f);
-                GUILayout.Label(lang.GetString("RELEASED_OUTLINE_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("RELEASED_OUTLINE_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20f);
                 GUILayout.EndHorizontal();
@@ -887,10 +889,10 @@ namespace KeyViewer
                 MoreGUILayout.EndIndent();
                 GUILayout.Space(8f);
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("PRESSED_BACKGROUND_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("PRESSED_BACKGROUND_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(8f);
-                GUILayout.Label(lang.GetString("RELEASED_BACKGROUND_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("RELEASED_BACKGROUND_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20f);
                 GUILayout.EndHorizontal();
@@ -923,10 +925,10 @@ namespace KeyViewer
                 config.Gradient = GUILayout.Toggle(config.Gradient, "Gradient");
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("PRESSED_TEXT_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("PRESSED_TEXT_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(8f);
-                GUILayout.Label(lang.GetString("RELEASED_TEXT_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("RELEASED_TEXT_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20f);
                 GUILayout.EndHorizontal();
@@ -1043,10 +1045,10 @@ namespace KeyViewer
                 MoreGUILayout.EndIndent();
 
                 GUILayout.BeginHorizontal();
-                GUILayout.Label(lang.GetString("PRESSED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("PRESSED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(8f);
-                GUILayout.Label(lang.GetString("RELEASED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
+                MoreGUILayout.DiscordButtonLabel(lang.GetString("RELEASED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20f);
                 GUILayout.EndHorizontal();
@@ -1296,141 +1298,11 @@ namespace KeyViewer
         internal static readonly string[] easeNames = eases.Select(e => e.ToString()).ToArray();
         internal static readonly string[] keyNames = Main.KeyCodes.Select(c => c.ToString()).ToArray();
         internal static readonly Dictionary<KeyCode, int> codeIndex;
-        internal static readonly Dictionary<KeyCode, ushort> KeyCodeToNative;
         static Key()
         {
             codeIndex = new Dictionary<KeyCode, int>();
             for (int i = 0; i < Main.KeyCodes.Length; i++)
                 codeIndex[Main.KeyCodes[i]] = i;
-            KeyCodeToNative = new Dictionary<KeyCode, ushort>();
-            KeyCodeToNative[KeyCode.None] = 0;
-            KeyCodeToNative[KeyCode.Escape] = 1;
-            KeyCodeToNative[KeyCode.Alpha1] = 2;
-            KeyCodeToNative[KeyCode.Alpha2] = 3;
-            KeyCodeToNative[KeyCode.Alpha3] = 4;
-            KeyCodeToNative[KeyCode.Alpha4] = 5;
-            KeyCodeToNative[KeyCode.Alpha5] = 6;
-            KeyCodeToNative[KeyCode.Alpha6] = 7;
-            KeyCodeToNative[KeyCode.Alpha7] = 8;
-            KeyCodeToNative[KeyCode.Alpha8] = 9;
-            KeyCodeToNative[KeyCode.Alpha9] = 10;
-            KeyCodeToNative[KeyCode.Alpha0] = 11;
-            KeyCodeToNative[KeyCode.Minus] = 12;
-            KeyCodeToNative[KeyCode.Equals] = 13;
-            KeyCodeToNative[KeyCode.Backspace] = 14;
-            KeyCodeToNative[KeyCode.Tab] = 15;
-            KeyCodeToNative[KeyCode.Q] = 16;
-            KeyCodeToNative[KeyCode.W] = 17;
-            KeyCodeToNative[KeyCode.E] = 18;
-            KeyCodeToNative[KeyCode.R] = 19;
-            KeyCodeToNative[KeyCode.T] = 20;
-            KeyCodeToNative[KeyCode.Y] = 21;
-            KeyCodeToNative[KeyCode.U] = 22;
-            KeyCodeToNative[KeyCode.I] = 23;
-            KeyCodeToNative[KeyCode.O] = 24;
-            KeyCodeToNative[KeyCode.P] = 25;
-            KeyCodeToNative[KeyCode.LeftBracket] = 26;
-            KeyCodeToNative[KeyCode.RightBracket] = 27;
-            KeyCodeToNative[KeyCode.Return] = 28;
-            KeyCodeToNative[KeyCode.LeftControl] = 29;
-            KeyCodeToNative[KeyCode.A] = 30;
-            KeyCodeToNative[KeyCode.S] = 31;
-            KeyCodeToNative[KeyCode.D] = 32;
-            KeyCodeToNative[KeyCode.F] = 33;
-            KeyCodeToNative[KeyCode.G] = 34;
-            KeyCodeToNative[KeyCode.H] = 35;
-            KeyCodeToNative[KeyCode.J] = 36;
-            KeyCodeToNative[KeyCode.K] = 37;
-            KeyCodeToNative[KeyCode.L] = 38;
-            KeyCodeToNative[KeyCode.Semicolon] = 39;
-            KeyCodeToNative[KeyCode.Quote] = 40;
-            KeyCodeToNative[KeyCode.BackQuote] = 41;
-            KeyCodeToNative[KeyCode.LeftShift] = 42;
-            KeyCodeToNative[KeyCode.Backslash] = 43;
-            KeyCodeToNative[KeyCode.Z] = 44;
-            KeyCodeToNative[KeyCode.X] = 45;
-            KeyCodeToNative[KeyCode.C] = 46;
-            KeyCodeToNative[KeyCode.V] = 47;
-            KeyCodeToNative[KeyCode.B] = 48;
-            KeyCodeToNative[KeyCode.N] = 49;
-            KeyCodeToNative[KeyCode.M] = 50;
-            KeyCodeToNative[KeyCode.Comma] = 51;
-            KeyCodeToNative[KeyCode.Period] = 52;
-            KeyCodeToNative[KeyCode.Slash] = 53;
-            KeyCodeToNative[KeyCode.RightShift] = 54;
-            KeyCodeToNative[KeyCode.KeypadMultiply] = 55;
-            KeyCodeToNative[KeyCode.LeftAlt] = 56;
-            KeyCodeToNative[KeyCode.Space] = 57;
-            KeyCodeToNative[KeyCode.CapsLock] = 58;
-            KeyCodeToNative[KeyCode.F1] = 59;
-            KeyCodeToNative[KeyCode.F2] = 60;
-            KeyCodeToNative[KeyCode.F3] = 61;
-            KeyCodeToNative[KeyCode.F4] = 62;
-            KeyCodeToNative[KeyCode.F5] = 63;
-            KeyCodeToNative[KeyCode.F6] = 64;
-            KeyCodeToNative[KeyCode.F7] = 65;
-            KeyCodeToNative[KeyCode.F8] = 66;
-            KeyCodeToNative[KeyCode.F9] = 67;
-            KeyCodeToNative[KeyCode.F10] = 68;
-            KeyCodeToNative[KeyCode.Numlock] = 69;
-            KeyCodeToNative[KeyCode.ScrollLock] = 70;
-            KeyCodeToNative[KeyCode.Keypad7] = 71;
-            KeyCodeToNative[KeyCode.Keypad8] = 72;
-            KeyCodeToNative[KeyCode.Keypad9] = 73;
-            KeyCodeToNative[KeyCode.KeypadMinus] = 74;
-            KeyCodeToNative[KeyCode.Keypad4] = 75;
-            KeyCodeToNative[KeyCode.Keypad5] = 76;
-            KeyCodeToNative[KeyCode.Keypad6] = 77;
-            KeyCodeToNative[KeyCode.KeypadPlus] = 78;
-            KeyCodeToNative[KeyCode.Keypad1] = 79;
-            KeyCodeToNative[KeyCode.Keypad2] = 80;
-            KeyCodeToNative[KeyCode.Keypad3] = 81;
-            KeyCodeToNative[KeyCode.Keypad0] = 82;
-            KeyCodeToNative[KeyCode.KeypadPeriod] = 83;
-            KeyCodeToNative[KeyCode.F11] = 87;
-            KeyCodeToNative[KeyCode.F12] = 88;
-            KeyCodeToNative[KeyCode.F13] = 91;
-            KeyCodeToNative[KeyCode.F14] = 92;
-            KeyCodeToNative[KeyCode.F15] = 93;
-            KeyCodeToNative[KeyCode.Underscore] = 115;
-            KeyCodeToNative[KeyCode.Comma] = 126;
-            KeyCodeToNative[KeyCode.KeypadEquals] = 3597;
-            KeyCodeToNative[KeyCode.KeypadEnter] = 3612;
-            KeyCodeToNative[KeyCode.RightControl] = 3613;
-            KeyCodeToNative[KeyCode.KeypadDivide] = 3637;
-            KeyCodeToNative[KeyCode.Print] = 3639;
-            KeyCodeToNative[KeyCode.RightAlt] = 3640;
-            KeyCodeToNative[KeyCode.Pause] = 3653;
-            KeyCodeToNative[KeyCode.Home] = 3655;
-            KeyCodeToNative[KeyCode.PageUp] = 3657;
-            KeyCodeToNative[KeyCode.End] = 3663;
-            KeyCodeToNative[KeyCode.PageDown] = 3665;
-            KeyCodeToNative[KeyCode.Insert] = 3666;
-            KeyCodeToNative[KeyCode.Delete] = 3667;
-            KeyCodeToNative[KeyCode.LeftMeta] = 3675;
-            KeyCodeToNative[KeyCode.RightMeta] = 3676;
-            KeyCodeToNative[KeyCode.Menu] = 3677;
-            KeyCodeToNative[KeyCode.UpArrow] = 57416;
-            KeyCodeToNative[KeyCode.LeftArrow] = 57419;
-            KeyCodeToNative[KeyCode.Clear] = 57420;
-            KeyCodeToNative[KeyCode.RightArrow] = 57421;
-            KeyCodeToNative[KeyCode.DownArrow] = 57424;
-            KeyCodeToNative[KeyCode.Home] = 60999;
-            KeyCodeToNative[KeyCode.UpArrow] = 61000;
-            KeyCodeToNative[KeyCode.PageUp] = 61001;
-            KeyCodeToNative[KeyCode.LeftArrow] = 61003;
-            KeyCodeToNative[KeyCode.Clear] = 61004;
-            KeyCodeToNative[KeyCode.RightArrow] = 61005;
-            KeyCodeToNative[KeyCode.End] = 61007;
-            KeyCodeToNative[KeyCode.DownArrow] = 61008;
-            KeyCodeToNative[KeyCode.PageDown] = 61009;
-            KeyCodeToNative[KeyCode.Insert] = 61010;
-            KeyCodeToNative[KeyCode.Delete] = 61011;
-            KeyCodeToNative[KeyCode.Mouse0] = 1001;
-            KeyCodeToNative[KeyCode.Mouse1] = 1002;
-            KeyCodeToNative[KeyCode.Mouse2] = 1003;
-            KeyCodeToNative[KeyCode.Mouse3] = 1004;
-            KeyCodeToNative[KeyCode.Mouse4] = 1005;
         }
         internal static bool DrawEase(Ease ease, Action<Ease> setter)
         {
@@ -1627,7 +1499,7 @@ namespace KeyViewer
                 onChange(config);
             }
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Ease:");
+            MoreGUILayout.DiscordButtonLabel("Ease:");
             if (DrawEase(config.Ease, ease => config.Ease = ease))
                 onChange(config);
             GUILayout.FlexibleSpace();
@@ -1735,10 +1607,10 @@ namespace KeyViewer
             Color newPressed, newReleased;
             string newPressedHex, newReleasedHex;
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Main.Lang.GetString("PRESSED_OUTLINE_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("PRESSED_OUTLINE_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(8f);
-            GUILayout.Label(Main.Lang.GetString("RELEASED_OUTLINE_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("RELEASED_OUTLINE_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(20f);
             GUILayout.EndHorizontal();
@@ -1769,10 +1641,10 @@ namespace KeyViewer
             MoreGUILayout.EndIndent();
             GUILayout.Space(8f);
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Main.Lang.GetString("PRESSED_BACKGROUND_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("PRESSED_BACKGROUND_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(8f);
-            GUILayout.Label(Main.Lang.GetString("RELEASED_BACKGROUND_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("RELEASED_BACKGROUND_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(20f);
             GUILayout.EndHorizontal();
@@ -1805,10 +1677,10 @@ namespace KeyViewer
             config.Gradient = GUILayout.Toggle(config.Gradient, "Gradient");
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Main.Lang.GetString("PRESSED_TEXT_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("PRESSED_TEXT_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(8f);
-            GUILayout.Label(Main.Lang.GetString("RELEASED_TEXT_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("RELEASED_TEXT_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(20f);
             GUILayout.EndHorizontal();
@@ -1925,10 +1797,10 @@ namespace KeyViewer
             MoreGUILayout.EndIndent();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Main.Lang.GetString("PRESSED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("PRESSED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(8f);
-            GUILayout.Label(Main.Lang.GetString("RELEASED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
+            MoreGUILayout.DiscordButtonLabel(Main.Lang.GetString("RELEASED_COUNT_TEXT_COLOR"), GUILayout.Width(200f));
             GUILayout.FlexibleSpace();
             GUILayout.Space(20f);
             GUILayout.EndHorizontal();

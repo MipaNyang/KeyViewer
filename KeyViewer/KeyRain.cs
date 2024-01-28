@@ -15,18 +15,23 @@ namespace KeyViewer
         internal Image image;
         private Key key;
         private RectTransform rt;
-        void Awake()
-        {
-            image = gameObject.AddComponent<Image>();
-            rt = image.rectTransform;
-            rt.anchoredPosition = Vector2.zero;
-        }
+        private bool initialized = false;
         public void Init(Key key)
         {
+            if (initialized) return;
             this.key = key;
+            image = gameObject.AddComponent<Image>();
+            rt = image.rectTransform;
             image.sprite = config.GetRainImage();
             image.color = config.RainColor;
-            ResetSizePos();
+            rt.pivot = ((Vector3)rt.pivot).WithY(0.295f);
+            initialized = true;
+        }
+        public void OnEnable()
+        {
+            if (!initialized) return;
+            rt.sizeDelta = GetInitialSize();
+            rt.anchoredPosition = GetPosition(config.Direction);
         }
         public void Press()
         {
@@ -45,11 +50,6 @@ namespace KeyViewer
                 image.color = forceRainColor.Value;
                 forceRainColor = null;
             }
-        }
-        public void ResetSizePos()
-        {
-            rt.sizeDelta = GetInitialSize();
-            rt.anchoredPosition = GetPosition(config.Direction);
         }
         public void Release()
         {
@@ -77,14 +77,14 @@ namespace KeyViewer
             else
             {
                 stretching = false;
-                ResetSizePos();
+                OnEnable();
                 gameObject.SetActive(false);
             }
         }
         public void ForceRelease()
         {
             stretching = false;
-            ResetSizePos();
+            OnEnable();
             gameObject.SetActive(false);
         }
         internal static bool DrawConfigGUI(KeyCode code, RainConfig config)
@@ -119,7 +119,7 @@ namespace KeyViewer
                 Color newHexColor;
                 var hexString = ColorUtility.ToHtmlStringRGBA(config.RainColor);
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Hex");
+                MoreGUILayout.DiscordButtonLabel("Hex");
                 if (ColorUtility.TryParseHtmlString(GUILayout.TextField(hexString), out newHexColor))
                     config.RainColor = newHexColor;
                 GUILayout.FlexibleSpace();
@@ -127,17 +127,17 @@ namespace KeyViewer
                 MoreGUILayout.EndIndent();
             }
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Rain Direction");
+            MoreGUILayout.DiscordButtonLabel("Rain Direction");
             if (DrawDirection($"{code} Rain Direction", ref config.Direction))
                 Main.KeyManager.UpdateKeys();
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            GUILayout.Label("Rain Images");
+            MoreGUILayout.DiscordButtonLabel("Rain Images");
             MoreGUILayout.DrawStringArray(ref config.RainImages,
                 i => Array.Resize(ref config.RainImageCounts, i),
                 i =>
                 {
-                    GUILayout.Label("Count: ");
+                    MoreGUILayout.DiscordButtonLabel("Count: ");
                     if (int.TryParse(GUILayout.TextField(config.RainImageCounts[i].ToString()), out int count))
                     {
                         if (count < 1) count = 1;

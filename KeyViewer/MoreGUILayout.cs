@@ -11,6 +11,11 @@ namespace KeyViewer
     /// </summary>
     public static class MoreGUILayout
     {
+        public static void DiscordButtonLabel(string label, params GUILayoutOption[] options)
+        {
+            if (GUILayout.Button(label, GUI.skin.label, options))
+                Application.OpenURL("https://discord.gg/c-s-server-1001848852833378326");
+        }
         public static bool DrawStringArray(ref string[] array, Action<int> arrayResized = null, Action<int> elementRightGUI = null, Action<int, string> onElementChange = null)
         {
             bool result = false;
@@ -33,7 +38,7 @@ namespace KeyViewer
             {
                 string cache = array[i];
                 GUILayout.BeginHorizontal();
-                GUILayout.Label($"{i}: ");
+                MoreGUILayout.DiscordButtonLabel($"{i}: ");
                 cache = GUILayout.TextField(cache);
                 elementRightGUI?.Invoke(i);
                 GUILayout.FlexibleSpace();
@@ -85,7 +90,7 @@ namespace KeyViewer
 
             GUILayout.BeginVertical();
 
-            GUILayout.Label("Top Left");
+            MoreGUILayout.DiscordButtonLabel("Top Left");
             GUILayout.BeginVertical();
             newR1 = NamedSlider("R:", oldR1, 0, 255, 300f, 1, 40f);
             newG1 = NamedSlider("G:", oldG1, 0, 255, 300f, 1, 40f);
@@ -93,7 +98,7 @@ namespace KeyViewer
             newA1 = NamedSlider("A:", oldA1, 0, 255, 300f, 1, 40f);
             GUILayout.EndVertical();
 
-            GUILayout.Label("Top Right");
+            MoreGUILayout.DiscordButtonLabel("Top Right");
             GUILayout.BeginVertical();
             newR2 = NamedSlider("R:", oldR2, 0, 255, 300f, 1, 40f);
             newG2 = NamedSlider("G:", oldG2, 0, 255, 300f, 1, 40f);
@@ -101,7 +106,7 @@ namespace KeyViewer
             newA2 = NamedSlider("A:", oldA2, 0, 255, 300f, 1, 40f);
             GUILayout.EndVertical();
 
-            GUILayout.Label("Bottom Left");
+            MoreGUILayout.DiscordButtonLabel("Bottom Left");
             GUILayout.BeginVertical();
             newR3 = NamedSlider("R:", oldR3, 0, 255, 300f, 1, 40f);
             newG3 = NamedSlider("G:", oldG3, 0, 255, 300f, 1, 40f);
@@ -109,7 +114,7 @@ namespace KeyViewer
             newA3 = NamedSlider("A:", oldA3, 0, 255, 300f, 1, 40f);
             GUILayout.EndVertical();
 
-            GUILayout.Label("Bottom Right");
+            MoreGUILayout.DiscordButtonLabel("Bottom Right");
             GUILayout.BeginVertical();
             newR4 = NamedSlider("R:", oldR4, 0, 255, 300f, 1, 40f);
             newG4 = NamedSlider("G:", oldG4, 0, 255, 300f, 1, 40f);
@@ -385,12 +390,12 @@ namespace KeyViewer
         {
             if (labelWidth == 0)
             {
-                GUILayout.Label(name);
+                MoreGUILayout.DiscordButtonLabel(name);
                 GUILayout.Space(4f);
             }
             else
             {
-                GUILayout.Label(name, GUILayout.Width(labelWidth));
+                MoreGUILayout.DiscordButtonLabel(name, GUILayout.Width(labelWidth));
             }
             float newValue =
                 GUILayout.HorizontalSlider(
@@ -401,7 +406,7 @@ namespace KeyViewer
             }
             GUILayout.Space(8f);
             if (valueFormat != "{0}")
-                GUILayout.Label(string.Format(valueFormat, newValue));
+                MoreGUILayout.DiscordButtonLabel(string.Format(valueFormat, newValue));
             else float.TryParse(GUILayout.TextField(newValue.ToString("F2")), out newValue);
             GUILayout.FlexibleSpace();
             return newValue;
@@ -475,12 +480,12 @@ namespace KeyViewer
         {
             if (labelWidth == 0)
             {
-                GUILayout.Label(name);
+                MoreGUILayout.DiscordButtonLabel(name);
                 GUILayout.Space(4f);
             }
             else
             {
-                GUILayout.Label(name, GUILayout.Width(labelWidth));
+                MoreGUILayout.DiscordButtonLabel(name, GUILayout.Width(labelWidth));
             }
             string newValue = fieldWidth <= 0 ? GUILayout.TextField(value) : GUILayout.TextField(value, GUILayout.Width(fieldWidth));
             GUILayout.FlexibleSpace();
@@ -501,23 +506,23 @@ namespace KeyViewer
             GUILayout.BeginHorizontal();
             if (textWidth == 0)
             {
-                GUILayout.Label(text1);
+                MoreGUILayout.DiscordButtonLabel(text1);
                 GUILayout.Space(4f);
             }
             else
             {
-                GUILayout.Label(text1, GUILayout.Width(textWidth));
+                MoreGUILayout.DiscordButtonLabel(text1, GUILayout.Width(textWidth));
             }
             GUILayout.FlexibleSpace();
             GUILayout.Space(8f);
             if (textWidth == 0)
             {
-                GUILayout.Label(text2);
+                MoreGUILayout.DiscordButtonLabel(text2);
                 GUILayout.Space(4f);
             }
             else
             {
-                GUILayout.Label(text2, GUILayout.Width(textWidth));
+                MoreGUILayout.DiscordButtonLabel(text2, GUILayout.Width(textWidth));
             }
             GUILayout.FlexibleSpace();
             GUILayout.Space(20f);

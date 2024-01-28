@@ -13,7 +13,6 @@ using SFB;
 using System.Xml.Serialization;
 using KeyViewer.Patches;
 using System.Text;
-using System.Security.AccessControl;
 using UnityEngine.SceneManagement;
 
 namespace KeyViewer
@@ -47,7 +46,7 @@ namespace KeyViewer
             modEntry.OnShowGUI = OnShowGUI;
             modEntry.OnHideGUI = OnHideGUI;
             SceneManager.activeSceneChanged += (from, to) => AsyncInputManager.ClearKeys();
-            AssetBundle assets = AssetBundle.LoadFromFile("Mods/KeyViewer/keyviewer.assets");
+            AssetBundle assets = AssetBundle.LoadFromFile("Mods/KeyViewer_V3/keyviewer.assets");
             KeyOutline = assets.LoadAsset<Sprite>("Assets/KeyOutline.png");
             KeyBackground = assets.LoadAsset<Sprite>("Assets/KeyBackground.png");
         }
@@ -62,11 +61,11 @@ namespace KeyViewer
                     profiles.Add(new Profile());
                 if (profiles.Count <= profileIndex || profileIndex < 0)
                     Settings.ProfileIndex = 0;
-                Lang = new LangManager(File.ReadAllText("Mods/KeyViewer/Language.json"));
+                Lang = new LangManager(File.ReadAllText("Mods/KeyViewer_V3/Language.json"));
                 Lang.ChangeLanguage(Settings.Language);
                 Harmony = new Harmony(modEntry.Info.Id);
                 Harmony.PatchAll(Assembly.GetExecutingAssembly());
-                KeyManager = new GameObject("KeyViewer KeyManager").AddComponent<KeyManager>();
+                KeyManager = new GameObject("KeyViewer KeyManager_V3").AddComponent<KeyManager>();
                 profiles.ForEach(p => p.Init(KeyManager));
                 KeyManager.Init(Settings.CurrentProfile);
                 if (Settings.CurrentProfile.ResetWhenStart)
@@ -103,9 +102,9 @@ namespace KeyViewer
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Settings Backup Interval (s): ");
+                MoreGUILayout.DiscordButtonLabel("Settings Backup Interval (s): ");
                 int.TryParse(GUILayout.TextField(Settings.BackupInterval.ToString()), out Settings.BackupInterval);
-                GUILayout.Label("s");
+                MoreGUILayout.DiscordButtonLabel("s");
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
                 DrawProfileSettingsGUI();
@@ -189,7 +188,7 @@ namespace KeyViewer
             GUILayout.Label(Lang.GetString("MIGRATE_FROM_V2_KEYVIEWER"), bold);
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("KeyCounts.kc:");
+            MoreGUILayout.DiscordButtonLabel("KeyCounts.kc:");
             v2Arg.keyCountsPath = GUILayout.TextField(v2Arg.keyCountsPath);
             if (GUILayout.Button("Choose"))
                 v2Arg.keyCountsPath = StandaloneFileBrowser.OpenFilePanel("Select KeyCounts", "", new ExtensionFilter[] { new ExtensionFilter("KeyCounts", "kc") }, false)[0];
@@ -197,7 +196,7 @@ namespace KeyViewer
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("KeySettings.ks:");
+            MoreGUILayout.DiscordButtonLabel("KeySettings.ks:");
             v2Arg.keySettingsPath = GUILayout.TextField(v2Arg.keySettingsPath);
             if (GUILayout.Button("Choose"))
                 v2Arg.keySettingsPath = StandaloneFileBrowser.OpenFilePanel("Select KeySettings", "", new ExtensionFilter[] { new ExtensionFilter("KeySettings", "ks") }, false)[0];
@@ -205,7 +204,7 @@ namespace KeyViewer
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Settings.xml (Must Not Be Null!):");
+            MoreGUILayout.DiscordButtonLabel("Settings.xml (Must Not Be Null!):");
             v2Arg.settingsPath = GUILayout.TextField(v2Arg.settingsPath);
             if (GUILayout.Button("Choose"))
                 v2Arg.settingsPath = StandaloneFileBrowser.OpenFilePanel("Select Settings", "", new ExtensionFilter[] { new ExtensionFilter("Settings", "xml") }, false)[0];
@@ -232,7 +231,7 @@ namespace KeyViewer
                     MigrateErrorString = ie.Message;
                 }
             }
-            GUILayout.Label(MigrateErrorString);
+            MoreGUILayout.DiscordButtonLabel(MigrateErrorString);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
@@ -314,7 +313,7 @@ namespace KeyViewer
             GUILayout.EndHorizontal();
             GUILayout.Space(4f);
             Settings.CurrentProfile.Name = MoreGUILayout.NamedTextField(Lang.GetString("PROFILE_NAME"), Settings.CurrentProfile.Name, 400f);
-            GUILayout.Label(Lang.GetString("PROFILES"));
+            MoreGUILayout.DiscordButtonLabel(Lang.GetString("PROFILES"));
             int selected = Settings.ProfileIndex;
             if (MoreGUILayout.ToggleList(Settings.Profiles, ref selected, p => p.Name))
             {
@@ -326,7 +325,7 @@ namespace KeyViewer
         private static void DrawKeyRegisterSettingsGUI()
         {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Lang.GetString("REGISTERED_KEYS"));
+            MoreGUILayout.DiscordButtonLabel(Lang.GetString("REGISTERED_KEYS"));
             KeyManager.Profile.IgnoreSkippedKeys = GUILayout.Toggle(KeyManager.Profile.IgnoreSkippedKeys, Lang.GetString("IGNORE_SKIPPED_KEYS"));
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -367,7 +366,7 @@ namespace KeyViewer
             {
                 if (GUILayout.Button(Lang.GetString("DONE")))
                     IsListening = false;
-                GUILayout.Label(Lang.GetString("PRESS_KEY_REGISTER"));
+                MoreGUILayout.DiscordButtonLabel(Lang.GetString("PRESS_KEY_REGISTER"));
             }
             else
             {
@@ -439,7 +438,7 @@ namespace KeyViewer
             }
             GUILayout.Space(8f);
             GUILayout.BeginHorizontal();
-            GUILayout.Label(Lang.GetString("KPS_UPDATE_RATE"));
+            MoreGUILayout.DiscordButtonLabel(Lang.GetString("KPS_UPDATE_RATE"));
             int.TryParse(GUILayout.TextField(KeyManager.Profile.KPSUpdateRateMs.ToString()), out KeyManager.Profile.KPSUpdateRateMs);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
