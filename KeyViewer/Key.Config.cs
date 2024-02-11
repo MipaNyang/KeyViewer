@@ -1,7 +1,7 @@
-﻿using TMPro;
-using UnityEngine;
-using DG.Tweening;
+﻿using DG.Tweening;
 using System.Xml.Serialization;
+using TMPro;
+using UnityEngine;
 
 namespace KeyViewer
 {
@@ -270,7 +270,7 @@ namespace KeyViewer
                 {
                     failMissColor = value;
                     HitMarginColorHex[8] = ColorUtility.ToHtmlStringRGBA(value);
-                    
+
                 }
             }
             public Color FailOverloadColor

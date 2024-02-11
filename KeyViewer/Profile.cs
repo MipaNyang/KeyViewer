@@ -15,7 +15,6 @@ namespace KeyViewer
         public bool EditingKeyGroups;
         public bool AnimateKeys = true;
         public bool ShowKeyPressTotal = true;
-        public bool LimitNotRegisteredKeys = false;
         public float KeyViewerSize = 100f;
         public float KeyViewerXPos = 0.89f;
         public float KeyViewerYPos = 0.03f;
@@ -25,8 +24,6 @@ namespace KeyViewer
         public bool ApplyWithOffset = false;
         public bool SequentialRainImage = true;
         public bool ShuffleRainImage = false;
-        internal bool LimitNotRegisteredKeysOnCLS;
-        internal bool LimitNotRegisteredKeysOnMain;
 
         public Profile Copy()
         {
@@ -40,7 +37,6 @@ namespace KeyViewer
             prof.ViewerOnlyGameplay = ViewerOnlyGameplay;
             prof.AnimateKeys = AnimateKeys;
             prof.ShowKeyPressTotal = ShowKeyPressTotal;
-            prof.LimitNotRegisteredKeys = LimitNotRegisteredKeys;
             prof.KeyViewerSize = KeyViewerSize;
             prof.KeyViewerXPos = KeyViewerXPos;
             prof.KeyViewerYPos = KeyViewerYPos;

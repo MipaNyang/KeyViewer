@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
-using UnityEngine;
-using System.Linq;
-using SkyHook;
 using KeyViewer.API;
+using SkyHook;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace KeyViewer.Patches
 {

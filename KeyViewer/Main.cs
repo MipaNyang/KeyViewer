@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using HarmonyLib;
-using static UnityModManagerNet.UnityModManager;
-using UnityEngine;
-using System.IO;
-using TMPro;
+﻿using HarmonyLib;
 using KeyViewer.Migration;
 using KeyViewer.Migration.V2;
-using SFB;
-using System.Xml.Serialization;
 using KeyViewer.Patches;
+using SFB;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Xml.Serialization;
+using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using static UnityModManagerNet.UnityModManager;
 
 namespace KeyViewer
 {
@@ -395,11 +395,6 @@ namespace KeyViewer
             MoreGUILayout.BeginIndent();
             KeyManager.Profile.ViewerOnlyGameplay = GUILayout.Toggle(KeyManager.Profile.ViewerOnlyGameplay, Lang.GetString("VIEWER_ONLY_GAMEPLAY"));
             KeyManager.Profile.AnimateKeys = GUILayout.Toggle(KeyManager.Profile.AnimateKeys, Lang.GetString("ANIMATE_KEYS"));
-            if (KeyManager.Profile.LimitNotRegisteredKeys = GUILayout.Toggle(KeyManager.Profile.LimitNotRegisteredKeys, Lang.GetString("LIMIT_NOT_REGISTERED_KEYS")))
-            {
-                KeyManager.Profile.LimitNotRegisteredKeysOnCLS = GUILayout.Toggle(KeyManager.Profile.LimitNotRegisteredKeysOnCLS, Lang.GetString("LIMIT_NOT_REGISTERED_KEYS_ON_CLS"));
-                KeyManager.Profile.LimitNotRegisteredKeysOnMain = GUILayout.Toggle(KeyManager.Profile.LimitNotRegisteredKeysOnMain, Lang.GetString("LIMIT_NOT_REGISTERED_KEYS_ON_MAIN"));
-            }
             bool newShowTotal = GUILayout.Toggle(KeyManager.Profile.ShowKeyPressTotal, Lang.GetString("SHOW_KEY_PRESS_TOTAL"));
             if (newShowTotal != KeyManager.Profile.ShowKeyPressTotal)
             {

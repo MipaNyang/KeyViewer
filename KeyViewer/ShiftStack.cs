@@ -50,7 +50,7 @@ namespace KeyViewer
         }
         public T Pop()
         {
-            if (Count <= 0) 
+            if (Count <= 0)
                 return defaultValue;
             T t = array[0];
             Array.Copy(array, 1, array, 0, array.Length - 1);
@@ -59,7 +59,7 @@ namespace KeyViewer
         }
         public T Peek()
         {
-            if (Count <= 0) 
+            if (Count <= 0)
                 return defaultValue;
             return array[0];
         }

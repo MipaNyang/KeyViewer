@@ -29,7 +29,7 @@ namespace KeyViewer
             while (!cancelTok.IsCancellationRequested)
             {
                 Stopwatch sw = Stopwatch.StartNew();
-                while (sw.Elapsed.Seconds < Main.Settings.BackupInterval); sw.Stop();
+                while (sw.Elapsed.Seconds < Main.Settings.BackupInterval) ; sw.Stop();
                 WriteBackup();
             }
         }

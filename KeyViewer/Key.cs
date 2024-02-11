@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using TMPro;
+﻿using DG.Tweening;
+using KeyViewer.API;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
-using DG.Tweening;
-using KeyViewer.API;
 using Rnd = UnityEngine.Random;
-using static DG.DemiLib.External.DeHierarchyComponent;
-using static KeyViewer.Key;
 
 namespace KeyViewer
 {
@@ -161,9 +159,9 @@ namespace KeyViewer
                     Pressed = InputAPI.APIFlags.TryGetValue(Code, out bool flag) && flag;
                 else
                 {
-                    Pressed = KeyInput.GetKey(Code);
+                    Pressed = Input.GetKey(Code);
                     if (config.SpareCode != KeyCode.None)
-                        Pressed |= KeyInput.GetKey(config.SpareCode);
+                        Pressed |= Input.GetKey(config.SpareCode);
                 }
                 if (Pressed == prevPressed) return;
 
@@ -417,7 +415,7 @@ namespace KeyViewer
                         for (int i = 0; i < rains.Count; i++)
                             rains.For((i, rain) => rain.image.sprite = sprites[i]);
                     }
-                    else 
+                    else
                         for (int i = 0; i < rains.Count; i++)
                             rains.For((i, rain) => rain.image.sprite = null);
                     rains.ForEach(kr => kr.image.color = rConfig.RainColor);
@@ -1191,13 +1189,13 @@ namespace KeyViewer
                 if (Pressed)
                 {
                     Background.color = color;
-                    if (config.RainEnabled && config.ChangeRainColorJudge) 
+                    if (config.RainEnabled && config.ChangeRainColorJudge)
                         toRelease.image.color = color;
                 }
                 else
                 {
                     forceBgColor = color;
-                    if (config.RainEnabled && config.ChangeRainColorJudge) 
+                    if (config.RainEnabled && config.ChangeRainColorJudge)
                         KeyRain.forceRainColor = color;
                 }
             }

@@ -1,14 +1,9 @@
-﻿using System;
+﻿using KeyViewer.API;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using DG.Tweening;
-using Object = UnityEngine.Object;
-using KeyViewer.API;
 
 namespace KeyViewer
 {

@@ -1,5 +1,4 @@
-﻿using Newgrounds;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using UnityEngine;
 
 namespace KeyViewer
@@ -53,7 +52,7 @@ namespace KeyViewer
             {
                 if (CurrentImageIndex < RainImages.Length)
                     return CurrentImageIndex++;
-                 var ret = CurrentImageIndex = 0;
+                var ret = CurrentImageIndex = 0;
                 CurrentImageIndex++;
                 return ret;
             }

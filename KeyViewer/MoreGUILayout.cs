@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 // From AdofaiTweaks/Core/MoreGUILayout.cs
 namespace KeyViewer
@@ -47,7 +47,7 @@ namespace KeyViewer
                 {
                     array[i] = cache;
                     onElementChange?.Invoke(i, cache);
-                }    
+                }
             }
             return result;
         }

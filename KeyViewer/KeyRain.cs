@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityModManagerNet.UnityModManager;
@@ -24,7 +23,6 @@ namespace KeyViewer
             rt = image.rectTransform;
             image.sprite = config.GetRainImage();
             image.color = config.RainColor;
-            rt.pivot = ((Vector3)rt.pivot).WithY(0.295f);
             initialized = true;
         }
         public void OnEnable()
